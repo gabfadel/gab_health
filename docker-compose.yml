@@ -14,9 +14,9 @@ services:
         image: redis:7-alpine
         networks:
             - gab_backend
-    
+
     backend:
-        build: 
+        build:
             context: ./backend
         command: >
             sh -c "python manage.py makemigrations users &&
@@ -47,6 +47,7 @@ services:
             - .env.local
         volumes:
             - ./backend:/app
+        restart: unless-stopped
         depends_on:
             - db
             - redis
@@ -71,6 +72,6 @@ services:
             - gab_backend
 networks:
     gab_backend:
-        driver: bridge 
+        driver: bridge
 volumes:
     db_data:

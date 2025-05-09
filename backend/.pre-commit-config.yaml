@@ -36,7 +36,6 @@ repos:
         exclude: ^.*\b(migrations|tests)\b.*$
         additional_dependencies: [types-requests, django-stubs]
 
-# Custom Django check hook
 -   repo: local
     hooks:
     -   id: django-check

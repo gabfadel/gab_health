@@ -23,7 +23,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
 class AppointmentDetailSerializer(serializers.ModelSerializer):
     patient = UserSerializer(read_only=True)
     doctor = UserSerializer(read_only=True)
-
+    status = serializers.ReadOnlyField()
+    
     class Meta:
         model = Appointment
         fields = (
@@ -35,7 +36,10 @@ class AppointmentDetailSerializer(serializers.ModelSerializer):
             "is_canceled",
             "created_at",
             "updated_at",
+            "status",
         )
+
+
 
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):

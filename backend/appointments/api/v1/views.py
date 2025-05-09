@@ -1,15 +1,16 @@
-from drf_yasg import openapi
-from drf_yasg.utils import no_body, swagger_auto_schema
+from django.db.models import Case, When, Value, CharField
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_yasg import openapi
+from drf_yasg.utils import no_body, swagger_auto_schema
 
+from appointments.models import Appointment
 from appointments.api.v1.serializers import (
     AppointmentCreateSerializer,
     AppointmentDetailSerializer,
     AppointmentSerializer,
 )
-from appointments.models import Appointment
 
 
 class AppointmentViewSet(viewsets.ModelViewSet):
@@ -32,10 +33,21 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+
         if user.is_doctor:
-            return Appointment.objects.filter(doctor=user)
+            qs = Appointment.objects.filter(doctor=user)
         else:
-            return Appointment.objects.filter(patient=user)
+            qs = Appointment.objects.filter(patient=user)
+        
+        qs = qs.select_related('patient', 'doctor') .annotate(
+            status=Case(
+                When(is_canceled=True, then=Value("Canceled")),
+                When(is_confirmed=True, then=Value("Confirmed")),
+                default=Value("Pending"),
+                output_field=CharField()
+            )
+        )
+        return qs
 
     def perform_create(self, serializer):
         user = self.request.user

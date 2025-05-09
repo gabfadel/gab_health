@@ -56,12 +56,12 @@ services:
       - redis
     restart: unless-stopped
     networks:
-      - gab_backend                                                                           
+      - gab_backend
 
   # --- CELERY WORKER -------------------------------------------------------
   worker:
     build:
-      context: ./backend                                                                                      
+      context: ./backend
     command: celery -A src.celery worker --loglevel=info
     environment:
       DJANGO_SETTINGS_MODULE: src.settings
@@ -70,7 +70,7 @@ services:
       - .env.local
     volumes:
       - ./backend:/app
-    depends_on:                                                                               
+    depends_on:
       - db
       - redis
     networks:
