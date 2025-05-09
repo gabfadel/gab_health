@@ -15,27 +15,25 @@ repos:
     hooks:
     -   id: black
         language_version: python3
-        exclude: ^(frontend|node_modules|.*\b(migrations)\b.*$)
 
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
     -   id: isort
         args: ["--profile", "black"]
-        exclude: ^(frontend|node_modules|.*\b(migrations)\b.*$)
 
 -   repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 6.1.0
     hooks:
     -   id: flake8
-        additional_dependencies: [flake8-django]
-        exclude: '^.*\b(migrations)\b.*$|frontend|node_modules'
+        additional_dependencies: [flake8-django>=1.4.0]
+        exclude: ^.*\b(migrations)\b.*$
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
     -   id: mypy
-        exclude: '^.*\b(migrations|tests)\b.*$|frontend|node_modules'
+        exclude: ^.*\b(migrations|tests)\b.*$
         additional_dependencies: [types-requests, django-stubs]
 
 # Custom Django check hook
@@ -43,7 +41,6 @@ repos:
     hooks:
     -   id: django-check
         name: django-check
-        entry: python manage.py check
+        entry: python manage.py check --deploy
         language: system
-        types: [python]
         pass_filenames: false

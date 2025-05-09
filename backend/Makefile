@@ -18,10 +18,10 @@ stop-server: ## Stop Server
 	docker compose down
 
 migrate: ## Run the migrate inside the container
-	docker compose run --rm backend python manage.py migrate 
+	docker compose run --rm backend python manage.py migrate
 
 makemigrations: ## Run the makemigrations inside the container
-	docker compose run --rm backend python manage.py makemigrations																																																																							 
+	docker compose run --rm backend python manage.py makemigrations
 
 startapp: ## Create a new Django app inside the container. Usage: make startapp APP=<your_app_name>
 	docker compose run --rm backend python manage.py startapp $(APP)
@@ -31,7 +31,7 @@ shell: ## Run the django shell inside the container
 
 test: ## Run Tests in container
 	docker compose run --rm backend python manage.py test
-	
+
 superuser: ## Create superuser
 	docker compose run --rm backend python manage.py createsuperuser
 

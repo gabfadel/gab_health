@@ -1,9 +1,18 @@
 from django.conf import settings
 from django.db import models
 
+
 class Appointment(models.Model):
-    patient= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointment_as_patient')
-    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointment_as_doctor')
+    patient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="appointment_as_patient",
+    )
+    doctor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="appointment_as_doctor",
+    )
     date = models.DateTimeField()
     is_confirmed = models.BooleanField(default=False)
     is_canceled = models.BooleanField(default=False)
