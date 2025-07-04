@@ -174,3 +174,5 @@ docker-compose down
 ---
 
 With these steps, you can fully test all GAB Health features via both API and frontend interfaces.
+
+## 8. .env and .env.local examples

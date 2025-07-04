@@ -40,6 +40,6 @@ repos:
     hooks:
     -   id: django-check
         name: django-check
-        entry: python manage.py check --deploy
+        entry: python3 manage.py check --deploy
         language: system
         pass_filenames: false
