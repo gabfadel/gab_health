@@ -1,77 +1,99 @@
+version: "3.9"
+
 services:
-    db:
-        image: postgres:13
-        environment:
-            POSTGRES_USER: ${DATABASE_USER:-postgres}
-            POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-            POSTGRES_DB: ${DATABASE_NAME:-postgres}
-        volumes:
-            - db_data:/var/lib/postgresql/data
-        networks:
-            - gab_backend
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-postgres}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - gab_backend
 
-    redis:
-        image: redis:7-alpine
-        networks:
-            - gab_backend
+  redis:
+    image: redis:7-alpine
+    networks:
+      - gab_backend
 
-    backend:
-        build:
-            context: ./backend
-        command: >
-            sh -c "python manage.py makemigrations users &&
-                  python manage.py migrate &&
-                  python manage.py runserver 0.0.0.0:8000"
-        env_file:
-            - .env
-            - .env.local
-        ports:
-            - "8000:8000"
-        volumes:
-            - ./backend:/app
-        depends_on:
-            - db
-            - redis
-        restart: unless-stopped
-        networks:
-            - gab_backend
+  backend:
+    build:
+      context: ./backend
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn src.wsgi:application --bind 0.0.0.0:8000 --workers 3
+      "
+    env_file:
+      - .env
+      - .env.local
+    ports:
+      - "8000:8000"            # mantenha se quiser acessar direto; caso contrário, remova
+    volumes:
+      - ./backend:/app
+      - static_volume:/static  # <-- onde o collectstatic grava
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - gab_backend
 
-    worker:
-        build:
-            context: ./backend
-        command: celery -A src.celery worker --loglevel=info
-        environment:
-            - DJANGO_SETTINGS_MODULE=src.settings
-        env_file:
-            - .env
-            - .env.local
-        volumes:
-            - ./backend:/app
-        restart: unless-stopped
-        depends_on:
-            - db
-            - redis
-        networks:
-            - gab_backend
+  worker:
+    build:
+      context: ./backend
+    command: celery -A src.celery worker --loglevel=info
+    environment:
+      - DJANGO_SETTINGS_MODULE=src.settings
+    env_file:
+      - .env
+      - .env.local
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    networks:
+      - gab_backend
 
-    frontend:
-        build:
-            context: ./frontend
-            dockerfile: Dockerfile
-        env_file:
-            - .env
-            - .env.local
-        environment:
-            - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-        ports:
-            - "3000:3000"
-        depends_on:
-            - backend
-        restart: unless-stopped
-        networks:
-            - gab_backend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+      - .env.local
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - gab_backend
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - gab_backend
+
 networks:
-    gab_backend:
-        driver: bridge
+  gab_backend:
+    driver: bridge
+
 volumes:
-    db_data:
+  static_volume:
+  db_data:

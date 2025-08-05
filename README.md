@@ -4,35 +4,6 @@ GAB Health is a web application for managing healthcare workflows: user registra
 
 ---
 
-## Enviroment files
-
-Create these .env files at your project root before starting services.
-.env
-# Server
-NODE_ENV=development
-PORT=8000
-
-# PostgreSQL
-DB_HOST=db
-DB_PORT=5432
-DB_NAME=gabhealth
-DB_USER=gab_user
-DB_PASSWORD=gab_pass
-
-# Redis
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# Auth
-JWT_SECRET=devsecretkey12345
-
-# FDA API
-FDA_API_BASE_URL=https://api.fda.gov
-
-
-.env.local
-NEXT_PUBLIC_API_URL=http://localhost:8000
-
 ## 1. Doctor Creation (Admin Panel)
 
 1. **Create superuser** (if not already created):
